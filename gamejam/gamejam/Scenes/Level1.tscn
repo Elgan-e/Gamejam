@@ -1,0 +1,187 @@
+[gd_scene load_steps=15 format=3 uid="uid://bwrfk7pqxy1b2"]
+
+[ext_resource type="Texture2D" uid="uid://vcy8kkos7dfa" path="res://background.png" id="1_keile"]
+[ext_resource type="Texture2D" uid="uid://6pi48oevl0n8" path="res://TileSet.png" id="2_c4401"]
+[ext_resource type="PackedScene" uid="uid://dmdeyg536tatg" path="res://Scenes/MainCharacter.tscn" id="3_2t70l"]
+[ext_resource type="PackedScene" uid="uid://bp42uvl1pn2lb" path="res://Scenes/Collectable.tscn" id="4_im7re"]
+[ext_resource type="PackedScene" uid="uid://dyujsmgibngd1" path="res://Scenes/finish.tscn" id="5_ohsbv"]
+[ext_resource type="Script" path="res://Scenes/game_manager.gd" id="6_txeu0"]
+[ext_resource type="Texture2D" uid="uid://ciqliwrpys2l8" path="res://CariadIdle.png" id="7_jsfy0"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_mxu0v"]
+texture = ExtResource("2_c4401")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:1/0 = 0
+0:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:1/0 = 0
+1:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:2/0 = 0
+3:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:3/0 = 0
+2:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:3/0 = 0
+3:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSet" id="TileSet_uxf3f"]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_mxu0v")
+
+[sub_resource type="GDScript" id="GDScript_sxas3"]
+script/source = "extends CharacterBody2D
+
+
+const SPEED = 300.0
+const JUMP_VELOCITY = -600.0
+
+
+func _physics_process(delta: float) -> void:
+	# Add the gravity.
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+
+	# Handle jump.
+	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	# Get the input direction and handle the movement/deceleration.
+	# As good practice, you should replace UI actions with custom gameplay actions.
+	var direction := Input.get_axis(\"ui_left\", \"ui_right\")
+	if direction:
+		velocity.x = direction * SPEED
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+
+	move_and_slide()
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7b7ik"]
+atlas = ExtResource("7_jsfy0")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_acnmw"]
+atlas = ExtResource("7_jsfy0")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o0x1w"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7b7ik")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_acnmw")
+}],
+"loop": true,
+"name": &"default",
+"speed": 4.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_383x7"]
+size = Vector2(128, 128)
+
+[node name="Main" type="Node"]
+
+[node name="SceneObjects" type="Node" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="SceneObjects"]
+texture_filter = 1
+offset_top = -384.0
+offset_right = 3512.0
+offset_bottom = 648.0
+texture = ExtResource("1_keile")
+
+[node name="TextEdit" type="TextEdit" parent="SceneObjects"]
+texture_filter = 1
+offset_left = 3344.0
+offset_top = 400.0
+offset_right = 3472.0
+offset_bottom = 456.0
+theme_override_font_sizes/font_size = 30
+text = "Cariad :)"
+
+[node name="TileMap" type="TileMap" parent="SceneObjects"]
+texture_filter = 1
+scale = Vector2(3, 3)
+tile_set = SubResource("TileSet_uxf3f")
+rendering_quadrant_size = 32
+format = 2
+layer_0/tile_data = PackedInt32Array(720908, 0, 0, 720909, 65536, 0, 720910, 65536, 1, 720911, 65536, 0, 65535, 131072, 2, 131071, 196608, 2, 196607, 131072, 3, 262143, 196608, 3, 327679, 131072, 2, 393215, 196608, 2, 458751, 131072, 3, 524287, 196608, 3, 589823, 131072, 2, 655359, 196608, 2, 720895, 131072, 3, 786431, 196608, 3, 851967, 131072, 2, 917503, 196608, 2, 851968, 0, 0, 851969, 65536, 0, 851970, 0, 0, 851971, 65536, 0, 851972, 0, 0, 851973, 65536, 0, 851974, 0, 0, 851975, 65536, 0, 851976, 0, 0, 851977, 65536, 0, 851978, 0, 0, 851979, 65536, 0, 851980, 0, 0, 851981, 65536, 0, 851982, 0, 0, 851983, 65536, 0, 851984, 0, 0, 851985, 65536, 0, 851986, 0, 0, 851987, 65536, 0, 851988, 0, 0, 851989, 65536, 0, 851990, 0, 0, 851991, 65536, 0, 851992, 0, 0, 851993, 65536, 0, 851994, 0, 0, 851995, 65536, 0, 851996, 0, 0, 851997, 65536, 0, 851998, 0, 0, 851999, 65536, 0, 852000, 0, 0, 852001, 65536, 0, 852002, 0, 0, 852003, 65536, 0, 852004, 0, 0, 852005, 65536, 0, 852006, 0, 0, 852007, 65536, 0, 852008, 0, 0, 852009, 65536, 0, 852010, 0, 0, 852011, 65536, 0, 852012, 0, 0, 852013, 65536, 0, 852014, 0, 0, 852015, 65536, 0, 852016, 0, 0, 852017, 65536, 0, 983039, 131072, 3, 917504, 196608, 2, 917505, 131072, 2, 917506, 196608, 2, 917507, 131072, 2, 917508, 196608, 2, 917509, 131072, 2, 917510, 196608, 2, 917511, 131072, 2, 917512, 196608, 2, 917513, 131072, 2, 917514, 196608, 2, 917515, 131072, 2, 917516, 196608, 2, 917517, 131072, 2, 917518, 196608, 2, 917519, 131072, 2, 917520, 196608, 2, 917521, 131072, 2, 917522, 196608, 2, 917523, 131072, 2, 917524, 196608, 2, 917525, 131072, 2, 917526, 196608, 2, 917527, 131072, 2, 917528, 196608, 2, 917529, 131072, 2, 917530, 196608, 2, 917531, 131072, 2, 917532, 196608, 2, 917533, 131072, 2, 917534, 196608, 2, 917535, 131072, 2, 917536, 196608, 2, 917537, 131072, 2, 917538, 196608, 2, 917539, 131072, 2, 917540, 196608, 2, 917541, 131072, 2, 917542, 196608, 2, 917543, 131072, 2, 917544, 196608, 2, 917545, 131072, 2, 917546, 196608, 2, 917547, 131072, 2, 917548, 196608, 2, 917549, 131072, 2, 917550, 196608, 2, 917551, 131072, 2, 917552, 196608, 2, 917553, 131072, 2, 720912, 0, 0, 786448, 0, 1, 720913, 65536, 0, 786449, 65536, 1, 589840, 0, 0, 655376, 0, 1, 589841, 65536, 0, 655377, 65536, 1, 589842, 0, 0, 655378, 0, 1, 589843, 65536, 0, 655379, 65536, 1, 720914, 0, 0, 786450, 0, 1, 720915, 65536, 0, 786451, 65536, 1, 393236, 0, 0, 393237, 65536, 0, 393238, 0, 0, 393239, 65536, 0, 852018, 0, 0, 852019, 65536, 0, 852020, 0, 0, 852021, 65536, 0, 852022, 0, 0, 852023, 65536, 0, 852024, 0, 0, 852025, 65536, 0, 852026, 0, 0, 852027, 65536, 0, 852028, 0, 0, 852029, 65536, 0, 852030, 0, 0, 852031, 65536, 0, 852032, 0, 0, 852033, 65536, 0, 852034, 0, 0, 852035, 65536, 0, 852036, 0, 0, 852037, 65536, 0, -458753, 131072, 2, -393217, 196608, 2, -327681, 131072, 3, -262145, 196608, 3, -196609, 131072, 2, -131073, 196608, 2, -65537, 131072, 2, -1, 196608, 2, -524289, 131072, 3, -589824, 196608, 3, -589823, 131072, 3, -589822, 196608, 3, -589821, 131072, 3, -589820, 196608, 3, -589819, 131072, 3, -589818, 196608, 3, -589817, 131072, 3, -589816, 196608, 3, -589815, 131072, 3, -589814, 196608, 3, -589813, 131072, 3, -589812, 196608, 3, -589811, 131072, 3, -589810, 196608, 3, -589809, 131072, 3, -589808, 196608, 3, -589807, 131072, 3, -589806, 196608, 3, -589805, 131072, 3, -589804, 196608, 3, -589803, 131072, 3, -589802, 196608, 3, -589801, 131072, 3, -589800, 196608, 3, -589799, 131072, 3, -589798, 196608, 3, -589797, 131072, 3, -589796, 196608, 3, -589795, 131072, 3, -589794, 196608, 3, -589793, 131072, 3, -589792, 196608, 3, -589791, 131072, 3, -589790, 196608, 3, -589789, 131072, 3, -589788, 196608, 3, -589787, 131072, 3, -589786, 196608, 3, -589785, 131072, 3, -589784, 196608, 3, -589783, 131072, 3, -589782, 196608, 3, -589781, 131072, 3, -589780, 196608, 3, -589779, 131072, 3, -589778, 196608, 3, -589777, 131072, 3, -589776, 196608, 3, -589775, 131072, 3, -589774, 196608, 3, -589773, 131072, 3, -589772, 196608, 3, -589771, 131072, 3, -589770, 196608, 3, -589769, 131072, 3, -589768, 196608, 3, -589767, 131072, 3, -589766, 196608, 3, -589765, 131072, 3, -589764, 196608, 3, -589763, 131072, 3, -589762, 196608, 3, -589761, 131072, 3, -589760, 196608, 3, -589759, 131072, 3, -589758, 196608, 3, -589757, 131072, 3, -589756, 196608, 3, -589755, 131072, 3, -589754, 196608, 3, 917555, 131072, 2, 917556, 196608, 2, 917557, 131072, 2, 917558, 196608, 2, 917559, 131072, 2, 917560, 196608, 2, 917561, 131072, 2, 917562, 196608, 2, 917563, 131072, 2, 917564, 196608, 2, 917565, 131072, 2, 917566, 196608, 2, 917567, 131072, 2, 917568, 196608, 2, 917569, 131072, 2, 917570, 196608, 2, 917571, 131072, 2, 917572, 196608, 2, 917573, 131072, 2, 917574, 196608, 2, 917554, 196608, 2, 720924, 0, 0, 786460, 0, 1, 720925, 65536, 0, 786461, 65536, 1, 720926, 0, 0, 786462, 0, 1, 720927, 65536, 0, 786463, 65536, 1, -262144, 0, 0, -262143, 65536, 0, -262142, 0, 0, -262141, 65536, 0, -262140, 0, 0, -262139, 65536, 0, -262138, 0, 0, -262137, 65536, 0, 852038, 0, 0, 720954, 0, 0, 786490, 0, 1, 589882, 0, 0, 655418, 0, 1, 458810, 0, 0, 524346, 0, 1, 327738, 0, 0, 393274, 0, 1, 196666, 0, 0, 262202, 0, 1, 65594, 0, 0, 131130, 0, 1, -65478, 0, 0, 58, 0, 1, -196550, 0, 0, -131014, 0, 1, -262086, 0, 1, -327622, 0, 0, -327621, 65536, 0, 393265, 0, 0, 458801, 0, 1, 393266, 65536, 0, 458802, 65536, 1, 262193, 0, 0, 327729, 0, 1, 262194, 65536, 0, 327730, 65536, 1, 131121, 0, 0, 196657, 0, 1, 131122, 65536, 0, 196658, 65536, 1, 589880, 0, 0, 589881, 65536, 0, 196664, 0, 0, 196665, 65536, 0, 65586, 0, 0, 65584, 0, 0, 65585, 65536, 0, -131015, 65536, 1, 262201, 65536, 1, 655417, 65536, 1, -262085, 0, 0, -196549, 0, 1, -131013, 0, 0, -65477, 0, 1, 59, 0, 0, 65595, 0, 1, 131131, 0, 0, 196667, 0, 1, 262203, 0, 0, 327739, 0, 1, 393275, 0, 0, 458811, 0, 1, 524347, 0, 0, 589883, 0, 1, 655419, 0, 0, 720955, 0, 1, 786491, 0, 0, 720960, 131072, 2, 786496, 131072, 3, 720961, 196608, 2, 786497, 196608, 3, 720962, 131072, 2, 786498, 131072, 3, 720963, 196608, 2, 786499, 196608, 3, 393267, 0, 0, 393268, 65536, 0, 786485, 0, 0, 786486, 65536, 0, 786483, 0, 0, 786484, 65536, 0, -131016, 65536, 0, 47, 0, 0, 65583, 0, 1, -131025, 0, 0, -65489, 0, 1, -262097, 0, 0, -196561, 0, 1, -393169, 0, 0, -327633, 0, 1, -524241, 0, 0, -458705, 0, 1, -393149, 0, 0, -327613, 0, 1, -524221, 0, 0, -458685, 0, 1, -524219, 0, 0, -524218, 65536, 0, -458682, 65536, 1, -524220, 65536, 0, -458684, 65536, 1, -393148, 65536, 0, -327612, 65536, 1, -524223, 0, 0, -458687, 0, 1, -524222, 65536, 0, -458686, 65536, 1, -393151, 0, 0, -327615, 0, 1, -393150, 65536, 0, -327614, 65536, 1, -589753, 131072, 3, -589752, 196608, 3, 917575, 131072, 2, 917576, 196608, 2, 852039, 0, 0, 852040, 65536, 0, -524215, 131072, 2, -589751, 131072, 3, -458679, 196608, 2, -393143, 131072, 3, -327607, 196608, 3, -262071, 131072, 2, -196535, 196608, 2, -130999, 131072, 3, -65463, 196608, 3, 73, 131072, 2, 65609, 196608, 2, 131145, 131072, 3, 196681, 196608, 3, 262217, 131072, 2, 327753, 196608, 2, 393289, 131072, 3, 458825, 196608, 3, 524361, 131072, 2, 589897, 196608, 2, 655433, 131072, 3, 720969, 196608, 3, 786505, 131072, 2, 852041, 196608, 2, 917577, 131072, 3, -524217, 0, 0, -458680, 0, 0, -524216, 65536, 0, -458681, 65536, 0, -458683, 65536, 0, -393144, 65536, 0, -327608, 65536, 1, -393147, 0, 0, -327611, 0, 1, -393146, 65536, 0, -327610, 65536, 1, -393145, 0, 0, -327609, 0, 1, -524243, 0, 0, -458707, 0, 1, -524242, 65536, 0, -458706, 65536, 1, -524245, 0, 0, -458709, 0, 1, -524244, 65536, 0, -458708, 65536, 1, -65491, 0, 1, -65490, 65536, 1, -65493, 0, 1, -65492, 65536, 1, -524254, 0, 0, -458718, 0, 1, -393182, 0, 0, -327646, 0, 1, -262110, 0, 0, -196574, 0, 1, -131038, 0, 0, -65502, 0, 1, 34, 0, 0, 65570, 0, 1, 524320, 0, 0, 524321, 65536, 0, 524322, 0, 0, 524323, 65536, 0, 393252, 0, 0, 393253, 65536, 0, 393254, 0, 0, 393255, 65536, 0, 45, 0, 0, 65581, 0, 1, 131117, 0, 0, 196653, 0, 1, 262189, 0, 0, 327725, 0, 1, 262187, 0, 0, 262188, 65536, 0, 131108, 0, 0, 131109, 65536, 0, 131106, 0, 0, 131107, 65536, 0, -524256, 0, 0, -458720, 0, 1, -524255, 65536, 0, -458719, 65536, 1, -393184, 0, 0, -327648, 0, 1, -393183, 65536, 0, -327647, 65536, 1, -262112, 0, 0, -196576, 0, 1, -262111, 65536, 0, -196575, 65536, 1, -131040, 0, 0, -65504, 0, 1, -131039, 65536, 0, -65503, 65536, 1, 32, 0, 0, 65568, 0, 1, 33, 65536, 0, 65569, 65536, 1, 30, 0, 0, 31, 65536, 0, 28, 0, 0, 29, 65536, 0, 196624, 0, 0, 196622, 0, 0, 196623, 65536, 0, 22, 0, 0, 23, 65536, 0, 24, 0, 0, 25, 65536, 0, 196621, 65536, 0, -196597, 0, 0, -196596, 65536, 0, -196595, 0, 0, -196594, 65536, 0, -524247, 0, 0, -524246, 65536, 0, -524249, 0, 0, -524248, 65536, 0, -524258, 0, 0, -524257, 65536, 0, -524260, 0, 0, -524259, 65536, 0, 131119, 0, 0, 131120, 65536, 0)
+
+[node name="CharacterBody2D" parent="SceneObjects" instance=ExtResource("3_2t70l")]
+texture_filter = 1
+position = Vector2(184, 16)
+script = SubResource("GDScript_sxas3")
+
+[node name="Camera2D" type="Camera2D" parent="SceneObjects/CharacterBody2D"]
+position_smoothing_enabled = true
+position_smoothing_speed = 7.0
+
+[node name="CollectableGroup" type="Node" parent="SceneObjects"]
+
+[node name="Area2D3" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(2168, -136)
+
+[node name="Area2D2" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(2376, -24)
+
+[node name="Collectable" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(392, 528)
+
+[node name="Collectable2" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(672, 440)
+
+[node name="collectable3" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(1056, 536)
+
+[node name="Area2D" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(104, -288)
+
+[node name="Area2D4" parent="SceneObjects/CollectableGroup" instance=ExtResource("4_im7re")]
+position = Vector2(1440, -80)
+
+[node name="Finish" parent="SceneObjects" instance=ExtResource("5_ohsbv")]
+
+[node name="GameManager" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("6_txeu0")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="UI"]
+offset_left = 40.0
+offset_top = 32.0
+offset_right = 232.0
+offset_bottom = 104.0
+
+[node name="Label" type="Label" parent="UI/Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "Points: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+texture_filter = 1
+position = Vector2(3408, 560)
+metadata/_edit_group_ = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
+texture_filter = 1
+position = Vector2(7.62939e-06, 3.8147e-06)
+scale = Vector2(4, 4)
+sprite_frames = SubResource("SpriteFrames_o0x1w")
+autoplay = "default"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("RectangleShape2D_383x7")
